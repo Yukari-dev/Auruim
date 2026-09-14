@@ -1,0 +1,4 @@
+@Panel background{
+  position: 10px 5px
+  color: #FFFFFF
+}
