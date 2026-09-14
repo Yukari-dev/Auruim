@@ -1,6 +1,8 @@
-#include <iostream>
+#include "auruim/registry.hpp"
+
+using namespace Auruim;
 
 int main() {
-  std::cout << "Hello world\n";
+  Registry registry;
   return 0;
 }
