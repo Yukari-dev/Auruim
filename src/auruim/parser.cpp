@@ -1,6 +1,7 @@
 #include "auruim/parser.hpp"
 #include "auruim/token.hpp"
 #include "auruim/value.hpp"
+#include <algorithm>
 #include <string>
 
 namespace Auruim{
@@ -52,7 +53,9 @@ Node Parser::ParseNode(){
   node.column = at.column;
 
   node.type = Expect(TokenType::Identifier, "type name").value;
-  node.id = Expect(TokenType::Identifier, "node id").value;
+
+  if(Check(TokenType::Identifier)) node.id = Advance().value;
+  else node.id = "node_" + std::to_string(node.line) + "_" + std::to_string(node.column);
 
   Expect(TokenType::LeftCurlyBracket, "'{'");
   
@@ -73,9 +76,11 @@ void Parser::ParseProperty(Node& node){
   const Token& propName = Expect(TokenType::Identifier, "Property name.");
   Expect(TokenType::Colon, "':'");
   Value v = ParseValue();
-  auto [it, inserted] = node.props.emplace(propName.value, std::move(v));
-  if(!inserted)
+  auto it = std::find_if(node.props.begin(), node.props.end(), [&](const auto& p){ return p.first == propName.value; });
+  if(it != node.props.end())
     m_errors.push_back({"duplicate property: " + propName.value, propName.line, propName.column});
+  else
+    node.props.emplace_back(propName.value, std::move(v));
 }
 
 Value Parser::ParseValue(){
@@ -88,8 +93,10 @@ Value Parser::ParseValue(){
     float num = std::stof(Advance().value);
     nums.push_back(Value::Number(num));
 
-    while(Match(TokenType::Comma))
+    while(Match(TokenType::Comma)){
+      if(!Check(TokenType::Number)) break;
       nums.push_back(Value::Number(std::stof(Expect(TokenType::Number, "number").value)));
+    }
 
     return nums.size() == 1 ? nums[0] : Value::Array(std::move(nums));
   }

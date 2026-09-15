@@ -18,14 +18,7 @@ LoadResult LoadAndParse(const std::string& path) {
   Parser parser(std::move(tokens));
   auto result = parser.Parse();
 
-  auto final = LoadResult{ std::move(result.node), std::move(result.errors) };
-
-  if(!final.errors.empty()){
-    for(auto& d : final.errors)
-      std::cerr << path << ":" << d.line << ":" << d.column << ": " << d.message << '\n';
-  }
-
-  return final;
+  return { std::move(result.node), std::move(result.errors) };
 }
 
 }

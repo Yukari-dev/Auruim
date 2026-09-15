@@ -7,6 +7,11 @@ int main() {
   std::string path = "tests/test1.aui";
 
   auto result = LoadAndParse(path);
+  if (!result.errors.empty()) {
+    for (auto& d : result.errors)
+      std::cerr << "tests/main.aui:" << d.line << ":" << d.column << ": " << d.message << '\n';
+    return 1;
+  }
 
   auto& node = *result.node;
   std::cout << "type: " << node.type << '\n';
