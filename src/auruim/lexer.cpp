@@ -1,5 +1,4 @@
 #include "auruim/lexer.hpp"
-#include <iostream>
 
 namespace Auruim{
 
@@ -38,7 +37,7 @@ char Lexer::Peek(size_t offset) const{
 }
 
 char Lexer::Advance(){
-  if(m_pos + 1 >= m_source.size()) return '\0';
+  if(m_pos >= m_source.size()) return '\0';
   char c = m_source[m_pos++];
   if(c == '\n') { ++m_line; m_col = 1; }
   else m_col++;
@@ -51,29 +50,22 @@ bool Lexer::AtEnd() const{
 
 void Lexer::SkipWhitespace(){
   while(!AtEnd() && std::isspace(static_cast<unsigned char>(Peek())))
-    m_pos++;
+    Advance();
 }
 
 void Lexer::EmitNumber(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
-  if(!AtEnd() && Peek() == '.' && IsDigit(Peek(1))){
-    Advance();
-    while(!AtEnd() && IsDigit(Peek())) Advance();
-  }
   while(!AtEnd() && IsDigit(Peek())) Advance();
   if(!AtEnd() && Peek() == '.' && IsDigit(Peek(1))){
     Advance();
     while(!AtEnd() && IsDigit(Peek())) Advance();
   }
-
-  // std::cout << "Number: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
   out.push_back(MakeToken(TokenType::Number, startPos, startLine, startCol));
 }
 
 void Lexer::EmitIdentifier(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
   while(!AtEnd() && std::isalnum(static_cast<unsigned char>(Peek()))) Advance();
-  // std::cout << "Identifier: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
   out.push_back(MakeToken(TokenType::Identifier, startPos, startLine, startCol));
 }
 
@@ -81,8 +73,7 @@ void Lexer::EmitColor(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
   Advance();
   while(!AtEnd() && IsHex(Peek())) Advance();
-  // std::cout << "Color: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
-  out.push_back(MakeToken(TokenType::Number, startPos, startLine, startCol));
+  out.push_back(MakeToken(TokenType::ColorString, startPos, startLine, startCol));
 }
 
 bool Lexer::IsDigit(char c) const{

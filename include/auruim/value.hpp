@@ -8,10 +8,11 @@ namespace Auruim{
 
 class Value{
 public:
-  static Value Number(float v);
-  static Value Bool(bool b);
-  static Value String(std::string s);
-  static Value Array(std::vector<Value> a);
+  Value() = default;
+  static Value Number(float v) { return Value{v}; }
+  static Value Bool(bool b) { return Value{b}; }
+  static Value String(std::string s) { return Value{s}; }
+  static Value Array(std::vector<Value> a) { return Value{a}; }
 
   bool IsArray() const{
     return std::holds_alternative<std::vector<Value>>(m_data);
@@ -23,7 +24,26 @@ public:
     return *p;
   }
 
+  std::string ToDebugString() const {
+    if (auto p = std::get_if<float>(&m_data)) return std::to_string(*p);
+    if (auto p = std::get_if<std::string>(&m_data)) return '"' + *p + '"';
+    if (auto p = std::get_if<std::vector<Value>>(&m_data)) {
+      std::string s = "[";
+      for (size_t i = 0; i < p->size(); ++i) {
+        if (i) s += ", ";
+        s += (*p)[i].ToDebugString();
+      }
+      return s + "]";
+    }
+    if (std::holds_alternative<bool>(m_data))
+      return std::get<bool>(m_data) ? "true" : "false";
+    return "none";
+  }
 private:
+  Value(float v) : m_data(v) {}
+  Value(bool v) : m_data(v) {}
+  Value(std::string v) : m_data(v) {}
+  Value(std::vector<Value> v) : m_data(v) {}
   std::variant<std::monostate, float, bool, std::string, std::vector<Value>> m_data;
 };
 

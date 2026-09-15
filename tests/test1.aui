@@ -1,0 +1,6 @@
+@Panel background{
+  position: 0, 0
+  size: 1200, 700
+  color: #222222
+}
+

@@ -13,7 +13,9 @@ enum class TokenType{
   Hash,
 
   Number,
+  ColorString,
   Identifier,
+  Unknown,
   EndOfFile
 };
 
