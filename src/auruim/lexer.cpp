@@ -23,7 +23,7 @@ std::vector<Token> Lexer::Tokenize(){
       continue;
     }
     if(IsDigit(c) || c == '.') { EmitNumber(tokens); continue; }
-    if(std::isalpha(static_cast<unsigned char>(c))) { EmitIdentifier(tokens); continue; }
+    if(std::isalpha(static_cast<unsigned char>(c)) || c == '_') { EmitIdentifier(tokens); continue; }
 
     Advance();
   }
@@ -65,7 +65,7 @@ void Lexer::EmitNumber(std::vector<Token>& out){
 
 void Lexer::EmitIdentifier(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
-  while(!AtEnd() && std::isalnum(static_cast<unsigned char>(Peek()))) Advance();
+  while(!AtEnd() && (std::isalnum(static_cast<unsigned char>(Peek())) || Peek() == '_')) Advance();
   out.push_back(MakeToken(TokenType::Identifier, startPos, startLine, startCol));
 }
 

@@ -56,8 +56,13 @@ Node Parser::ParseNode(){
 
   Expect(TokenType::LeftCurlyBracket, "'{'");
   
-  while(!Check(TokenType::RightCurlyBracket) && !Check(TokenType::EndOfFile))
-    ParseProperty(node);
+  while(!Check(TokenType::RightCurlyBracket) && !Check(TokenType::EndOfFile)){
+    size_t before = m_pos;
+    if(Check(TokenType::AtSymbol)) node.children.push_back(ParseNode());
+    else ParseProperty(node);
+
+    if(m_pos == before) continue;
+  }
 
   Expect(TokenType::RightCurlyBracket, "'}'");
 
@@ -77,6 +82,9 @@ Value Parser::ParseValue(){
   if(Check(TokenType::ColorString)){
     return Value::String(Advance().value);
   }
+
+  if(Check(TokenType::Identifier))
+    return Value::String(Advance().value);
 
   if(Check(TokenType::Number)){
     std::vector<Value> nums;
