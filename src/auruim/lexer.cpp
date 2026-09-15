@@ -1,4 +1,5 @@
 #include "auruim/lexer.hpp"
+#include <iostream>
 
 namespace Auruim{
 
@@ -22,8 +23,9 @@ std::vector<Token> Lexer::Tokenize(){
       tokens.push_back(MakeToken(*t, startPos, startLine, startCol));
       continue;
     }
-    if(IsDigit(c) || c == '.') { EmitNumber(tokens); continue; }
+    if(IsDigit(c)) { EmitNumber(tokens); continue; }
     if(std::isalpha(static_cast<unsigned char>(c)) || c == '_') { EmitIdentifier(tokens); continue; }
+    if(c == '"') { EmitString(tokens); continue; }
 
     Advance();
   }
@@ -67,6 +69,25 @@ void Lexer::EmitIdentifier(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
   while(!AtEnd() && (std::isalnum(static_cast<unsigned char>(Peek())) || Peek() == '_')) Advance();
   out.push_back(MakeToken(TokenType::Identifier, startPos, startLine, startCol));
+}
+
+void Lexer::EmitString(std::vector<Token>& out){
+  size_t startLine = m_line, startCol = m_col;
+  Advance();
+
+  size_t contentStart = m_pos;
+
+  while(!AtEnd() && Peek() != '"' && Peek() != '\n') Advance();
+
+  size_t contentEnd = m_pos;
+  if(!AtEnd() && Peek() == '"')
+    Advance();
+
+  out.push_back(Token{
+    TokenType::StringLiteral,
+    std::string(m_source.substr(contentStart, contentEnd - contentStart)),
+    startLine, startCol
+  });
 }
 
 void Lexer::EmitColor(std::vector<Token>& out){

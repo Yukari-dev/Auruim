@@ -1,11 +1,4 @@
 @Panel background{
-  position_type: relative
-  position: 0, 0
-  size: 1200, 700
-  color: #222222
-  @Label hello{
-    position: 100, 100
-    color: #CCCCCC
-  }
+  text: "Hello world"
 }
 

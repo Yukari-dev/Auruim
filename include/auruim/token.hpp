@@ -14,6 +14,7 @@ enum class TokenType{
 
   Number,
   ColorString,
+  StringLiteral,
   Identifier,
   Unknown,
   EndOfFile

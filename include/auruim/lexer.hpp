@@ -19,6 +19,7 @@ private:
   void SkipWhitespace();
   void EmitNumber(std::vector<Token>& out);
   void EmitIdentifier(std::vector<Token>& out);
+  void EmitString(std::vector<Token>& out);
   void EmitColor(std::vector<Token>& out);
 
   bool IsDigit(char c) const;

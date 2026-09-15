@@ -79,12 +79,9 @@ void Parser::ParseProperty(Node& node){
 }
 
 Value Parser::ParseValue(){
-  if(Check(TokenType::ColorString)){
+  if(Check(TokenType::ColorString) || Check(TokenType::Identifier) || Check(TokenType::StringLiteral)){
     return Value::String(Advance().value);
   }
-
-  if(Check(TokenType::Identifier))
-    return Value::String(Advance().value);
 
   if(Check(TokenType::Number)){
     std::vector<Value> nums;
