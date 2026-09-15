@@ -1,4 +1,3 @@
-#include "auruim/lexer.hpp"
 #include "auruim/load.hpp"
 #include <iostream>
 

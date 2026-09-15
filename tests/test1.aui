@@ -1,4 +1,6 @@
 @Panel background{
-  text: "Hello world"
+  position: 10, 4
+  size: 500, 100
 }
+
 
