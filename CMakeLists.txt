@@ -20,3 +20,11 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/sandbox/main.cpp")
   add_executable(auruim sandbox/main.cpp)
   target_link_libraries(auruim PRIVATE Auruim)
 endif()
+
+install(TARGETS Auruim
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+install(DIRECTORY include/ DESTINATION include)

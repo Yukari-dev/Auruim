@@ -18,6 +18,19 @@ public:
     return std::holds_alternative<std::vector<Value>>(m_data);
   }
 
+  template <typename T>
+  const T& AsData() const{
+    auto* p = std::get_if<T>(&m_data);
+    assert(p && "Value is not what it expect");
+    return *p;
+  }
+  template <typename T>
+  T& AsData() {
+    auto* p = std::get_if<T>(&m_data);
+    assert(p && "Value is not what it expects");
+    return *p;
+  }
+
   const std::vector<Value>& AsArray() const {
     auto* p = std::get_if<std::vector<Value>>(&m_data);
     assert(p && "Value is not an Array");
