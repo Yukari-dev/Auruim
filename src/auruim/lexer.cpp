@@ -23,7 +23,7 @@ std::vector<Token> Lexer::Tokenize(){
       tokens.push_back(MakeToken(*t, startPos, startLine, startCol));
       continue;
     }
-    if(std::isdigit(static_cast<unsigned char>(c))) { EmitNumber(tokens); continue; }
+    if(IsDigit(c) || c == '.') { EmitNumber(tokens); continue; }
     if(std::isalpha(static_cast<unsigned char>(c))) { EmitIdentifier(tokens); continue; }
 
     Advance();
@@ -56,15 +56,24 @@ void Lexer::SkipWhitespace(){
 
 void Lexer::EmitNumber(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
-  while(!AtEnd() && std::isdigit(static_cast<unsigned char>(Peek()))) Advance();
-  std::cout << "Number: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
+  if(!AtEnd() && Peek() == '.' && IsDigit(Peek(1))){
+    Advance();
+    while(!AtEnd() && IsDigit(Peek())) Advance();
+  }
+  while(!AtEnd() && IsDigit(Peek())) Advance();
+  if(!AtEnd() && Peek() == '.' && IsDigit(Peek(1))){
+    Advance();
+    while(!AtEnd() && IsDigit(Peek())) Advance();
+  }
+
+  // std::cout << "Number: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
   out.push_back(MakeToken(TokenType::Number, startPos, startLine, startCol));
 }
 
 void Lexer::EmitIdentifier(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
   while(!AtEnd() && std::isalnum(static_cast<unsigned char>(Peek()))) Advance();
-  std::cout << "Identifier: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
+  // std::cout << "Identifier: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
   out.push_back(MakeToken(TokenType::Identifier, startPos, startLine, startCol));
 }
 
@@ -72,12 +81,16 @@ void Lexer::EmitColor(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
   Advance();
   while(!AtEnd() && IsHex(Peek())) Advance();
-  std::cout << "Color: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
+  // std::cout << "Color: " << std::string(m_source.substr(startPos, m_pos - startPos)) << '\n';
   out.push_back(MakeToken(TokenType::Number, startPos, startLine, startCol));
 }
 
+bool Lexer::IsDigit(char c) const{
+  return std::isdigit(static_cast<unsigned char>(c));
+}
+
 bool Lexer::IsHex(char c) const{
-  return std::isdigit(static_cast<unsigned char>(c)) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+  return IsDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
 Token Lexer::MakeToken(TokenType type, size_t startPos, size_t startLine, size_t startCol){

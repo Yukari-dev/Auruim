@@ -21,6 +21,7 @@ private:
   void EmitIdentifier(std::vector<Token>& out);
   void EmitColor(std::vector<Token>& out);
 
+  bool IsDigit(char c) const;
   bool IsHex(char c) const;
 
   Token MakeToken(TokenType type, size_t startPos, size_t startLine, size_t startCol);
