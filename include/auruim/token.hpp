@@ -8,6 +8,8 @@ enum class TokenType{
   AtSymbol,
   LeftCurlyBracket,
   RightCurlyBracket,
+  LeftParen,
+  RightParen,
   Colon,
   Comma,
   Hash,

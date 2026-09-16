@@ -2,6 +2,8 @@
 #include "auruim/token.hpp"
 #include "auruim/value.hpp"
 #include <algorithm>
+#include <cstdio>
+#include <iostream>
 #include <string>
 
 namespace Auruim{
@@ -84,9 +86,14 @@ void Parser::ParseProperty(Node& node){
 }
 
 Value Parser::ParseValue(){
-  if(Check(TokenType::ColorString) || Check(TokenType::Identifier) || Check(TokenType::StringLiteral)){
+  if(Check(TokenType::ColorString) || Check(TokenType::StringLiteral))
     return Value::String(Advance().value);
-  }
+
+  if(Check(TokenType::Identifier) && Peek(1).tokenType == TokenType::LeftParen)
+    return ParseFunctionCall();
+
+  if(Check(TokenType::Identifier))
+    return Value::String(Advance().value);
 
   if(Check(TokenType::Number)){
     std::vector<Value> nums;
@@ -104,6 +111,41 @@ Value Parser::ParseValue(){
     {"expected value, got " + std::string(TokenToString(Peek().tokenType)), Peek().line, Peek().column}
   );
   return Value{};
+}
+
+Value Parser::ParseFunctionCall(){
+  const Token& name = Advance();
+
+  Expect(TokenType::LeftParen, "'('");
+
+  std::vector<float> args;
+  args.push_back(std::stof(Expect(TokenType::Number, "number").value));
+
+  while(Match(TokenType::Comma)){
+    if(!Check(TokenType::Number)){
+      m_errors.push_back({"expected number after ','", Peek().line, Peek().column});
+      break;
+    }
+    args.push_back(std::stof(Advance().value));
+  }
+
+  Expect(TokenType::RightParen, "')'");
+  
+  if(name.value == "rgb"){
+    if(args.size() != 3){
+      m_errors.push_back({"rgb() requires 3 arguments", name.line, name.column});
+      return Value::String("#000000");
+    }
+    int r = std::clamp((int)args[0], 0, 255);
+    int g = std::clamp((int)args[1], 0, 255);
+    int b = std::clamp((int)args[2], 0, 255);
+    char buf[8];
+    std::snprintf(buf, sizeof(buf), "#%02X%02X%02X", r, g, b);
+    return Value::String(buf);
+  }
+
+  m_errors.push_back({"unknown function: " + name.value, name.line, name.column});
+  return Value::String("");
 }
 
 }

@@ -10,6 +10,8 @@ Registry::Registry(){
   m_symbols[':'] = TokenType::Colon;
   m_symbols[','] = TokenType::Comma;
   m_symbols['#'] = TokenType::Hash;
+  m_symbols['('] = TokenType::LeftParen;
+  m_symbols[')'] = TokenType::RightParen;
 }
 
 std::optional<TokenType> Registry::Lookup(char c) const{

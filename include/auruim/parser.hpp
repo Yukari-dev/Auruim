@@ -39,6 +39,7 @@ private:
   Node ParseNode();
   void ParseProperty(Node& node);
   Value ParseValue();
+  Value ParseFunctionCall();
 private:
   std::vector<Token> m_tokens{};
   size_t m_pos{};

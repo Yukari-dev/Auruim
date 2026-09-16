@@ -1,6 +1,7 @@
 @Panel background{
   position: 10, 4
   size: 500, 100
+  color: rgb(255, 128, 255)
 }
 
 

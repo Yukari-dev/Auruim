@@ -24,6 +24,7 @@ std::vector<Token> Lexer::Tokenize(){
       continue;
     }
     if(IsDigit(c)) { EmitNumber(tokens); continue; }
+    if(c == '-' && IsDigit(Peek(1))) { EmitNumber(tokens); continue; }
     if(std::isalpha(static_cast<unsigned char>(c)) || c == '_') { EmitIdentifier(tokens); continue; }
     if(c == '"') { EmitString(tokens); continue; }
 
@@ -57,6 +58,9 @@ void Lexer::SkipWhitespace(){
 
 void Lexer::EmitNumber(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
+
+  if(!AtEnd() && Peek() == '-') Advance();
+
   while(!AtEnd() && IsDigit(Peek())) Advance();
   if(!AtEnd() && Peek() == '.' && IsDigit(Peek(1))){
     Advance();
