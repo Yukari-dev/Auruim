@@ -3,7 +3,6 @@
 #include "auruim/value.hpp"
 #include <algorithm>
 #include <cstdio>
-#include <iostream>
 #include <string>
 
 namespace Auruim{
@@ -11,9 +10,15 @@ namespace Auruim{
 Parser::Parser(std::vector<Token> tokens) : m_tokens(std::move(tokens)) {}
 
 Parser::Result Parser::Parse(){
+  std::vector<Include> includes{};
+  while(Check(TokenType::Include)){
+    Node dummy{};
+    ParseInclude(dummy);
+    for(auto& inc : dummy.includes) includes.push_back(std::move(inc));
+  }
   Node root = ParseNode();
   Expect(TokenType::EndOfFile, "end of file");
-  return { std::move(root), std::move(m_errors) };
+  return { std::move(root), std::move(includes), std::move(m_errors) };
 }
 
 const Token& Parser::Peek(size_t offset) const{
@@ -63,7 +68,9 @@ Node Parser::ParseNode(){
   
   while(!Check(TokenType::RightCurlyBracket) && !Check(TokenType::EndOfFile)){
     size_t before = m_pos;
-    if(Check(TokenType::AtSymbol)) node.children.push_back(ParseNode());
+
+    if(Check(TokenType::Include)) ParseInclude(node);
+    else if(Check(TokenType::AtSymbol)) node.children.push_back(ParseNode());
     else ParseProperty(node);
 
     if(m_pos == before) continue;
@@ -146,6 +153,24 @@ Value Parser::ParseFunctionCall(){
 
   m_errors.push_back({"unknown function: " + name.value, name.line, name.column});
   return Value::String("");
+}
+
+void Parser::ParseInclude(Node& node){
+  const Token& kw = Advance();
+  
+  if(!Check(TokenType::StringLiteral)){
+    m_errors.push_back({"expected file path after 'include'", Peek().line, Peek().column});
+    return;
+  }
+
+  const Token& pathTok = Advance();
+
+  Include inc{
+    .path = pathTok.value,
+    .line = pathTok.line,
+    .column = pathTok.column
+  };
+  node.includes.push_back(std::move(inc));
 }
 
 }

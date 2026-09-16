@@ -1,3 +1,5 @@
+include "sidebar.aui"
+
 @Panel background{
   position: 10, 4
   size: 500, 100

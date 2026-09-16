@@ -72,7 +72,10 @@ void Lexer::EmitNumber(std::vector<Token>& out){
 void Lexer::EmitIdentifier(std::vector<Token>& out){
   size_t startPos = m_pos, startLine = m_line, startCol = m_col;
   while(!AtEnd() && (std::isalnum(static_cast<unsigned char>(Peek())) || Peek() == '_')) Advance();
-  out.push_back(MakeToken(TokenType::Identifier, startPos, startLine, startCol));
+  std::string text(m_source.substr(startPos, m_pos - startPos));
+  TokenType type = TokenType::Identifier;
+  if(text == "include") type = TokenType::Include;
+  out.push_back(Token{ type, std::move(text), startLine, startCol });
 }
 
 void Lexer::EmitString(std::vector<Token>& out){

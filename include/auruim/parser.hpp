@@ -1,17 +1,13 @@
 #pragma once
 #include "auruim/node.hpp"
 #include "auruim/token.hpp"
+#include "auruim/diagnostic.hpp"
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace Auruim{
-
-struct Diagnostic{
-  std::string message{};
-  size_t line{}, column{};
-};
 
 struct ParseError : std::runtime_error{
   size_t line{}, column{};
@@ -24,6 +20,7 @@ public:
   
   struct Result{
     std::optional<Node> node;
+    std::vector<Include> includes;
     std::vector<Diagnostic> errors;
   };
 
@@ -38,6 +35,7 @@ private:
 
   Node ParseNode();
   void ParseProperty(Node& node);
+  void ParseInclude(Node& node);
   Value ParseValue();
   Value ParseFunctionCall();
 private:

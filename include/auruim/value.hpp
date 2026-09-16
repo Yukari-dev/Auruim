@@ -52,6 +52,10 @@ public:
       return std::get<bool>(m_data) ? "true" : "false";
     return "none";
   }
+
+  bool operator==(const Value& other) const {
+    return m_data == other.m_data;
+  }
 private:
   Value(float v) : m_data(v) {}
   Value(bool v) : m_data(v) {}
